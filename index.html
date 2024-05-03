@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <style>
+        #map {
+            width: 1316px;
+            height: 840px;
+        }
+.leaflet-popup-content > table img {
+width: 200px;
+}
+.leaflet-popup-content > img { /*for other leaflet maps you can add rule as well*/
+width: 200px;
+}
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/Walking_DataLocations_1.js"></script>
+        <script src="data/Addedgeominfo_2.js"></script>
+        <script src="data/Walking_DataToilets_3.js"></script>
+        <script src="data/Walking_DataBenches_4.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[51.577837858319164,-9.214860932587762],[52.12289470915775,-7.8422132843873085]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_GoogleSatellite_0;
+        map.addLayer(layer_GoogleSatellite_0);
+        function pop_Walking_DataLocations_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Photo'] !== null ? '<img src="images/' + String(feature.properties['Photo']).replace(/[\\\/:]/g, '_').trim() + '">' : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Description'] !== null ? autolinker.link(feature.properties['Description'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Parking</strong><br />' + (feature.properties['Parking'] !== null ? autolinker.link(feature.properties['Parking'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Toilets</strong><br />' + (feature.properties['Toilets'] !== null ? autolinker.link(feature.properties['Toilets'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Condition</strong><br />' + (feature.properties['Condition'] !== null ? autolinker.link(feature.properties['Condition'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Activities</strong><br />' + (feature.properties['Activities'] !== null ? autolinker.link(feature.properties['Activities'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Walking_DataLocations_1_0() {
+            return {
+                pane: 'pane_Walking_DataLocations_1',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Walking_DataLocations_1.svg',
+            iconSize: [38.0, 38.0]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Walking_DataLocations_1');
+        map.getPane('pane_Walking_DataLocations_1').style.zIndex = 401;
+        map.getPane('pane_Walking_DataLocations_1').style['mix-blend-mode'] = 'normal';
+        var layer_Walking_DataLocations_1 = new L.geoJson(json_Walking_DataLocations_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Walking_DataLocations_1',
+            layerName: 'layer_Walking_DataLocations_1',
+            pane: 'pane_Walking_DataLocations_1',
+            onEachFeature: pop_Walking_DataLocations_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_Walking_DataLocations_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Walking_DataLocations_1);
+        map.addLayer(layer_Walking_DataLocations_1);
+        function pop_Addedgeominfo_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Photo'] !== null ? autolinker.link(feature.properties['Photo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ID'] !== null ? autolinker.link(feature.properties['ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['X'] !== null ? autolinker.link(feature.properties['X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Y'] !== null ? autolinker.link(feature.properties['Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Description'] !== null ? autolinker.link(feature.properties['Description'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Parking'] !== null ? autolinker.link(feature.properties['Parking'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Toilets'] !== null ? autolinker.link(feature.properties['Toilets'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Condition'] !== null ? autolinker.link(feature.properties['Condition'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Activities'] !== null ? autolinker.link(feature.properties['Activities'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['xcoord'] !== null ? autolinker.link(feature.properties['xcoord'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ycoord'] !== null ? autolinker.link(feature.properties['ycoord'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Addedgeominfo_2_0() {
+            return {
+                pane: 'pane_Addedgeominfo_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(196,60,57,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Addedgeominfo_2');
+        map.getPane('pane_Addedgeominfo_2').style.zIndex = 402;
+        map.getPane('pane_Addedgeominfo_2').style['mix-blend-mode'] = 'normal';
+        var layer_Addedgeominfo_2 = new L.geoJson(json_Addedgeominfo_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Addedgeominfo_2',
+            layerName: 'layer_Addedgeominfo_2',
+            pane: 'pane_Addedgeominfo_2',
+            onEachFeature: pop_Addedgeominfo_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Addedgeominfo_2_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Addedgeominfo_2);
+        map.addLayer(layer_Addedgeominfo_2);
+        function pop_Walking_DataToilets_3(feature, layer) {
+        }
+
+        function style_Walking_DataToilets_3_0() {
+            return {
+                pane: 'pane_Walking_DataToilets_3',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Walking_DataToilets_3.svg',
+            iconSize: [19.0, 19.0]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Walking_DataToilets_3');
+        map.getPane('pane_Walking_DataToilets_3').style.zIndex = 403;
+        map.getPane('pane_Walking_DataToilets_3').style['mix-blend-mode'] = 'normal';
+        var layer_Walking_DataToilets_3 = new L.geoJson(json_Walking_DataToilets_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Walking_DataToilets_3',
+            layerName: 'layer_Walking_DataToilets_3',
+            pane: 'pane_Walking_DataToilets_3',
+            onEachFeature: pop_Walking_DataToilets_3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_Walking_DataToilets_3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Walking_DataToilets_3);
+        map.addLayer(layer_Walking_DataToilets_3);
+        function pop_Walking_DataBenches_4(feature, layer) {
+        }
+
+        function style_Walking_DataBenches_4_0() {
+            return {
+                pane: 'pane_Walking_DataBenches_4',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Walking_DataBenches_4.svg',
+            iconSize: [19.0, 19.0]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Walking_DataBenches_4');
+        map.getPane('pane_Walking_DataBenches_4').style.zIndex = 404;
+        map.getPane('pane_Walking_DataBenches_4').style['mix-blend-mode'] = 'normal';
+        var layer_Walking_DataBenches_4 = new L.geoJson(json_Walking_DataBenches_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Walking_DataBenches_4',
+            layerName: 'layer_Walking_DataBenches_4',
+            pane: 'pane_Walking_DataBenches_4',
+            onEachFeature: pop_Walking_DataBenches_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_Walking_DataBenches_4_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Walking_DataBenches_4);
+        map.addLayer(layer_Walking_DataBenches_4);
+        map.on("zoomend", function(e) {
+            if (map.getZoom() <= 19 && map.getZoom() >= 13) {
+                map.addLayer(layer_Walking_DataToilets_3);
+            } else if (map.getZoom() > 19 || map.getZoom() < 13) {
+                map.removeLayer(layer_Walking_DataToilets_3);
+            }
+            if (map.getZoom() <= 19 && map.getZoom() >= 13) {
+                map.addLayer(layer_Walking_DataBenches_4);
+            } else if (map.getZoom() > 19 || map.getZoom() < 13) {
+                map.removeLayer(layer_Walking_DataBenches_4);
+            }
+        });
+            if (map.getZoom() <= 19 && map.getZoom() >= 13) {
+                map.addLayer(layer_Walking_DataToilets_3);
+            } else if (map.getZoom() > 19 || map.getZoom() < 13) {
+                map.removeLayer(layer_Walking_DataToilets_3);
+            }
+            if (map.getZoom() <= 19 && map.getZoom() >= 13) {
+                map.addLayer(layer_Walking_DataBenches_4);
+            } else if (map.getZoom() > 19 || map.getZoom() < 13) {
+                map.removeLayer(layer_Walking_DataBenches_4);
+            }
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/Walking_DataBenches_4.png" /> Walking_Data — Benches', layer: layer_Walking_DataBenches_4},
+            {label: '<img src="legend/Walking_DataToilets_3.png" /> Walking_Data — Toilets', layer: layer_Walking_DataToilets_3},
+            {label: '<img src="legend/Addedgeominfo_2.png" /> Added geom info', layer: layer_Addedgeominfo_2},
+            {label: '<img src="legend/Walking_DataLocations_1.png" /> Walking_Data — Locations', layer: layer_Walking_DataLocations_1},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_Walking_DataLocations_1,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'Name'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        </script>
+    </body>
+</html>
